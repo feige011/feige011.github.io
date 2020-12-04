@@ -1,102 +1,138 @@
 ---
 layout: default
+# The posts' layout
+# v2.0
+# https://github.com/cotes2020/jekyll-theme-chirpy
+# © 2017-2019 Cotes Chung
+# MIT Licensed
 ---
 
-{% if page.header.teaser %}
-  {% capture header_img %}
-  {{ '/assets/images/' | relative_url | append: page.header.teaser }}
-  {% endcapture %}
+<div class="row">
 
-  {% capture h_img_alt %}
-  {{ page.header.alt | default: page.title }}
-  {% endcapture %}
+  <div id="post-wrapper" class="col-12 col-lg-11 col-xl-8">
 
-  {% capture img_cap %}
-  {{ page.header.caption | default: '' }}
-  {% endcapture %}
-{% endif %}
+    <div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
 
-{% assign blog_author = site.data.blog.authors[0] %}
-{% capture bl_au_avatar %}
-{{ '/assets/images/' | relative_url | append: blog_author.avatar }}
-{% endcapture %}
+      <h1 data-toc-skip>{{ page.title }}</h1>
 
-{% capture bl_au_av_alt %}
-{{ blog_author.name }} avatar.
-{% endcapture %}
-
-<section class="container mt-3 blog-post">
-  <div class="row">
-    <div class="col-md-8 pb-3">
-      {% if page.show_hero %}
-      <!-- post hero -->
-      <figure class="figure">
-        <img class="img-fluid shadow-sm rounded mb-2 blog-post-hero-img" src="{{ header_img | strip }}"
-          alt="{{ h_img_alt | strip }}">
-        <figcaption class="figure-caption text-center">{{ img_cap | strip }}</figcaption>
-      </figure>
-      {% endif %}
-      <!-- post title -->
-      <h1>{{ page.title }}</h1>
-      <p class="font-italic text-muted">{{ page.date | date: "%b %-d, %Y" }}</p>
-      {% if page.show_author %}
-      <!-- post author, share -->
-      <div class="row align-items-center py-2 border-top border-bottom blog-post-author">
-        <div class="col-auto pr-0 pb-1">
-          <img src="{{ bl_au_avatar | strip }}" alt="{{ bl_au_av_alt | strip }}"
-            class="rounded-circle shadow-sm blog-post-author-avatar ">
+      <div class="post-meta text-muted d-flex flex-column">
+        <!-- Published date and author -->
+        <div>
+          Posted
+          {% include timeago.html date=page.date tooltip=true %}
+          by
+          <span class="author">
+          {% if page.author %}
+            {{ page.author }}
+          {% else %}
+            {{ site.author }}
+          {% endif %}
+          </span>
         </div>
-        <div class="col pr-0 pb-1">
-          <p class="blog-post-author-name p-0 m-0">{{ blog_author.name }}</p>
-          <p class="blog-post-author-headline p-0 m-0">{{ blog_author.headline }}</p>
+
+        <!-- lastmod -->
+        {% if page.last_modified_at %}
+        <div>
+          Updated
+          {% include timeago.html date=page.last_modified_at class="lastmod" tooltip=true %}
         </div>
-        <div class="col-auto justify-content-end blog-post-author-follow">
-          <div class="dropdown">
-            <button class="btn btn-outline-info dropdown-toggle" type="button" id="followMenuButton"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Follow</button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="followMenuButton">
-              {% for follow in blog_author.follow %}
-              <a class="dropdown-item pb-2 text-info" href="{{ follow.url }}"><i
-                  class="{{ follow.icon }}"></i>{{ follow.label }}</a>
-              {% endfor %}
-            </div>
+        {% endif %}
+
+        <!-- page views -->
+        {% if site.google_analytics.pv.enabled %}
+        <div>
+          <span id="pv" class="pageviews"><i class="fas fa-spinner fa-spin fa-fw"></i></span>
+          views
+        </div>
+        {% endif %}
+
+      </div> <!-- .post-meta -->
+
+      <div class="post-content">
+        {%- capture img_placehodler -%}
+          data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7
+        {% endcapture%}
+
+        {% if page.image %}
+          <img src="{{ img_placehodler }}" data-src="{{ page.image }}" class="post-preview-img">
+        {% endif %}
+
+        <!-- Using lozad. See: <https://github.com/ApoorvSaxena/lozad.js#usage> -->
+        {% if content contains '<img src=' %}
+          {% assign replacement = '<img src="' | append: img_placehodler | append: '" data-src=' %}
+          {{ content | replace: '<img src=', replacement }}
+        {% else %}
+          {{ content }}
+        {% endif %}
+      </div>
+
+      <div class="post-tail-wrapper text-muted">
+
+        <!-- categories -->
+        {% if page.categories.size > 0 %}
+        <div class="post-meta mb-3">
+          <i class="far fa-folder-open fa-fw mr-1"></i>
+          {% for category in page.categories %}
+            <a href='{{ site.baseurl }}/categories/{{ category | replace: ' ', '-' | downcase | url_encode }}/'>{{ category }}</a>
+            {%- unless forloop.last -%}, {%- endunless -%}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- tags -->
+        {% if page.tags.size > 0 %}
+        <div class="post-tags">
+          <i class="fa fa-tags fa-fw mr-1"></i>
+          {% for tag in page.tags %}
+          <a href="{{ site.baseurl }}/tags/{{ tag | replace: ' ', '-' | downcase | url_encode }}/"
+            class="post-tag no-text-decoration" >
+            {{- tag -}}
+          </a>
+          {% endfor %}
           </div>
-        </div>
-      </div>
-      {% endif %}
-      {% if page.show_toc %}
-      <!-- post TOC -->
-      <nav class="border mt-3 d-inline-block rounded">
-        <div class="p-1 bg-info text-white">
-          <i class="fas fa-list"></i>
-          <span class="pl-1">Contents</span>
-        </div>
-        <div class="blog-post-toc m-1">
-          {% include toc.html html=content %}
-        </div>
-      </nav>
-      {% endif %}
-      <!-- Post content -->
-      <article class="mt-3 blog-post-article">
-        {{ content }}
-      </article>
-      {% if page.share %}
-      <div class="blog-post-social-share">
-        {% include social-share.html %}
-      </div>
-      {% endif %}
-    </div>
-    <!-- blog post sidebar -->
-    <div class="col-md-4 blog-post-sidebar">
-      {% include blog-post-sidebar.html %}
-    </div>
-  </div>
-  <div class="row mt-3">
-    <div class="col-md-8">
-      {% if page.show_comments %}
-      <!-- Post comments -->
-        {%- include comments.html -%}
-      {% endif %}
-    </div>
-  </div>
-</section>
+        {% endif %}
+
+        <div class="post-tail-bottom
+          d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
+          {% if site.data.rights.license %}
+          <div class="license-wrapper">
+            This post is licensed under
+            <a href="{{ site.data.rights.license.link }}">{{ site.data.rights.license.name }}</a>
+            by the author.
+          </div>
+          {% endif %}
+
+          {% include post-sharing.html %}
+
+        </div><!-- .post-tail-bottom -->
+
+      </div><!-- div.post-tail -->
+
+    </div> <!-- .post -->
+
+
+  </div> <!-- #post-wrapper -->
+
+  {% include panel.html %}
+
+</div> <!-- .row -->
+
+<div class="row">
+  <div class="col-12 col-lg-11 col-xl-8">
+    <div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
+
+    {% include related-posts.html %}
+
+    {% include post-nav.html %}
+
+    {% if site.disqus.comments and page.comments %}
+      {% include disqus.html %}
+    {% endif %}
+
+    </div> <!-- #post-extend-wrapper -->
+
+  </div> <!-- .col-* -->
+
+</div> <!-- .row -->
+
+{% include lozad.html %}

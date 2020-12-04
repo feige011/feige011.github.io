@@ -1,72 +1,87 @@
 ---
-layout: default
+layout: page
+# The Home page layout
+# v2.0
+# https://github.com/cotes2020/jekyll-theme-chirpy
+# © 2017-2019 Cotes Chung
+# MIT Licensed
 ---
 
-{%- assign action_btn = page.action_btn[0] -%}
-{%- assign dropdown = page.action_btn[1].dropdown -%}
-{%- assign dropdown_items = page.action_btn[2].dropdown_items -%}
 
-<div class="home-page">
-  <!-- home page header -->
-  <section class="home-page-header">
-    <div class="container text-center">
-      <h1 class="animated fadeInDownBig">{{ page.title | default: 'HOME' }}</h1>
-      <p class="lead">{{ page.excerpt | default: 'Excerpt' }}</p>
-      {%- if page.action -%}
-        {%- include home-action-btn.html action_btn=action_btn dropdown=dropdown dropdown_items=dropdown_items -%}
-      {%- endif -%}
+{% assign pinned = site.posts | where_exp: "item", "item.pin == true"  %}
+{% assign default = site.posts | where_exp: "item", "item.pin != true"  %}
+{% assign posts = "" | split: "" %}
+
+<!-- Get pinned posts -->
+
+{% assign offset = paginator.page | minus: 1 | times: paginator.per_page %}
+{% assign pinned_num = pinned.size | minus: offset %}
+
+{% if pinned_num > 0 %}
+  {% for i in (offset..pinned.size) limit: pinned_num %}
+    {% assign posts = posts | push: pinned[i] %}
+  {% endfor %}
+{% else %}
+  {% assign pinned_num = 0 %}
+{% endif %}
+
+
+<!-- Get default posts -->
+
+{% assign default_beg = offset | minus: pinned.size %}
+
+{% if default_beg < 0 %}
+  {% assign default_beg = 0 %}
+{% endif %}
+
+{% assign default_num = paginator.posts | size | minus: pinned_num  %}
+{% assign default_end = default_beg | plus: default_num | minus: 1 %}
+
+{% if default_num > 0 %}
+  {% for i in (default_beg..default_end) %}
+    {% assign posts = posts | push: default[i] %}
+  {% endfor %}
+{% endif %}
+
+
+<div id="post-list">
+
+{% for post in posts %}
+
+  <div class="post-preview">
+    <div class="d-flex justify-content-between pr-xl-2">
+      <h1><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h1>
+      {% if post.pin == true %}
+        <i class="fas fa-thumbtack fa-fw text-muted mt-1 ml-2 mt-xl-2" data-toggle="tooltip" data-placement="left"
+        title="Pinned"></i>
+      {% endif %}
     </div>
-  </section>
-
-  <!-- home page features -->
-  <section class="home-page-features">
-    <div class="container">
-      {% if page.feature_rows %}
-      <div class="row">
-        {% for f_row in page.feature_rows %}
-        <!-- TODO use animate.css to animate on hover -->
-        <div class="col-md-4 p-0">
-          <div class="card border-0 m-3">
-            {% if f_row.img_path %}
-              {% capture img_path %}
-              {{ '/assets/images/' | relative_url | append: f_row.img_path }}
-              {% endcapture %}
-            {% endif %}
-
-            {% if f_row.img_alt %}
-              {% capture img_alt %}
-              {{ f_row.img_alt | default: 'Feature image' }}
-              {% endcapture %}
-            {% endif %}
-
-            <div class="shadow-sm rounded-top">
-              {% if img_path %}
-                <img class="img-fluid rounded-top" src="{{ img_path | strip }}" alt="{{ img_alt | strip }}">
-              {% endif %}
-            </div>
-
-            <div class="card-body bg-light border border-light border-top-0 rounded-bottom">
-              <a href="{{ f_row.url | relative_url }}">
-                <h2 class="m-0">
-                  {{ f_row.title | strip | strip_html | strip_newlines | truncate: 10 }}
-                </h2>
-              </a>
-              <p class="card-text">{{ f_row.excerpt | strip | strip_html | strip_newlines | truncate: 200 }}</p>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif%}
+    <div class="post-content">
+      <p>
+        {% include no-linenos.html content=post.content %}
+        {{ content | markdownify | strip_html | truncate: 200 }}
+      </p>
     </div>
-  </section>
 
-  <!-- home page article -->
-  <section class="home-page-article">
-    <div class="container">
-      <article>
-        {{ content }}
-      </article>
+    <div class="post-meta text-muted">
+      <!-- posted date -->
+      <i class="far fa-clock fa-fw"></i>
+      {% include timeago.html date=post.date tooltip=true %}
+
+      <!-- page views -->
+      {% if site.google_analytics.pv.enabled %}
+      <i class="far fa-eye fa-fw"></i>
+      <span id="pv_{{-post.title-}}" class="pageviews">
+        <i class="fas fa-spinner fa-spin fa-fw"></i>
+      </span>
+      {% endif %}
     </div>
-  </section>
-</div>
+  </div> <!-- .post-review -->
+
+{% endfor %}
+
+</div> <!-- #post-list -->
+
+{% if paginator.total_pages > 0 %}
+  {% include post-paginator.html %}
+{% endif %}

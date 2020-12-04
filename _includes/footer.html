@@ -1,58 +1,33 @@
-{% assign owner = site.data.nav.footer[0] %}
-{% assign social = site.data.nav.footer[1] %}
-{% assign feed = site.data.nav.footer[2] %}
+<!--
+  The Footer
+  v2.0
+  https://github.com/cotes2020/jekyll-theme-chirpy
+  © 2017-2019 Cotes Chung
+  MIT License
+-->
 
-<footer class="page-footer">
-    <div class="page-footer-owner">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 pb-3 text-center">
-                    <!-- owner info -->
-                    <p class="m-0">
-                        Owned by
-                        {% if owner.url %}
-                        <a href="{{ owner.url }}" {% if owner.description %} title="{{ owner.description }}"
-                            {% endif %}>{{ owner.owner }}</a>
-                        {% else %}
-                            <strong>{{ owner.owner }}</strong>
-                        {% endif %}
-                    </p>
-                    <p class="m-0 font-italic">{{ owner.bio }}</p>
-                    <p class="m-0"><i class="fas fa-map-marker-alt"></i><span class="pl-1">{{ owner.address }}</span>
-                    </p>
-                </div>
-                <div class="col-md-8 text-center">
-                    <!-- Social media links -->
-                    <ul class="list-inline">
-                        <li class="list-inline-item">Social: </li>
-                        {% for so_link in social.social %}
-                        <li class="list-inline-item">
-                            {% if so_link.url %}
-                            <a href="{{ so_link.url }}"><i class="{{ so_link.icon }}"></i>{{ so_link.label }}</a>
-                            {% else %}
-                            <strong>{{ so_link.label }}</strong>
-                            {% endif %}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    <!-- website feed links -->
-                    <ul class="list-inline">
-                        <li class="list-inline-item">Feed: </li>
-                        {% for fd_link in feed.feed %}
-                        <li class="list-inline-item">
-                            <a href="{{ fd_link.url | relative_url }}"><i class="{{ fd_link.icon }}"></i>{{ fd_link.label }}</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
+<footer class="d-flex w-100 justify-content-center">
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="footer-left">
+      <p class="mb-0">
+        © {{ 'now' | date: "%Y" }}
+        <a href="{{ site.social.links[0] }}">{{ site.social.name }}</a>.
+        {% if site.data.rights.brief %}
+        <span data-toggle="tooltip" data-placement="top"
+          title="{{ site.data.rights.verbose }}">{{ site.data.rights.brief }}</span>
+        {% endif %}
+      </p>
     </div>
-    <div class="page-footer-copyright">
-        <div class="container text-center">
-            <!-- copyright info -->
-            <p>Copyright &copy; {{ owner.owner }}, {{ "now" | date: "%Y" }}. Website theme <a href="https://github.com/manid2/lone-wolf-theme/">LWT</a> for <a href="https://jekyllrb.com/">Jekyll.</a>
-            </p>
-        </div>
+
+    <div class="footer-right">
+      <p class="mb-0">
+        Powered by
+        <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>
+        with
+        <a href="{{ site.data.meta.homepage }}" target="_blank" rel="noopener">{{ site.data.meta.name }}</a>
+        theme.
+      </p>
     </div>
+
+  </div> <!-- div.d-flex -->
 </footer>
